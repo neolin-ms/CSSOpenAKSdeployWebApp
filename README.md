@@ -338,6 +338,14 @@
 > Output:<br>
 > ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_10.png "6_10")<br>
 
+**Clean up the resources**
+1. Delete the resource group.
+> Command:<br>
+> ```bash
+> $ az group list -o table
+> $ az group delete --name myResourceGroupVM --no-wait --yes  
+> ```
+
 ## References
 
 1. [AKS - Tutorials](https://docs.microsoft.com/en-us/azure/aks/tutorial-kubernetes-prepare-app)
