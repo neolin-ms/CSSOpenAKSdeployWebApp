@@ -36,7 +36,7 @@
 3. Test application locally. To see the running application, enter `http://local:8080` in local web browser. The sample aplication, as shown in the following example.
 > Output:<br>
 > ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/1_4.png "1_4")<br>
-4. Clean ip resource.
+4. Clean up resource.
 > Command:<br>
 > ```bash
 > $ docker-compose down
@@ -271,6 +271,72 @@
 > ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_9.png "5_9")<br>
 
 **6 - Update application** 
+1. Open the `config_file.cfg` file with an editor.
+> Command:<br>
+> ```bash
+> $ vi azure-vote/azure-vote/config_file.cfg
+> ```
+> Change the values for VOTE1VALUE and VOTE2VALUE to different values, such as colors.
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_1.png "6_1")<br>
+2. Update the container image. Re-create the application image via Docker Compose.
+> Command:<br>
+> ```bash
+> $ docker-compose up --build -d
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_2.png "6_2")<br>
+3. Open a local web brpwser to `http://localhost:8080`. The updated values provided in the `config_file.cfg` file are displayed in your running application.
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_3.png "6_3")<br>
+4. Clean up resource.
+> Command:<br>
+> ```bash
+> $ docker-compose down
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_4.png "6_4")<br>
+5. Update the image version to `v2`.
+> Command:<br>
+> ```bash
+> $ docker images
+> $ docker tag mcr.microsoft.com/azuredocs/azure-vote-front:v1 <acrLoginServer>/azure-vote-front:v2
+> $ docker images
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_5.png "6_5")<br>
+6. Upload the image to your registry.
+> Command:<br>
+> ```bash
+> $ docker push <acrLoginServer>/azure-vote-front:v2
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_6.png "6_6")<br>
+7. Return a list of images that have been pushed to your ACR instance.
+> Command:<br>
+> ```bash
+> $ az acr repository show-tags --name <acrName> --repository azure-vote-front --output table 
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_7.png "6_7")<br>
+8. Deploy the updated application, specify the `v2` application version. 
+> Command:<br>
+> ```bash
+> $ kubectl get pods
+> $ kubectl set image deployment azure-vote-front azure-vote-front=<acrLoginServer>/azure-vote-front:v2
+> $ kubectl get pods
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_8.png "6_8")<br>
+9. Get the public IP(external IP) address of the `azure-vote-front` service.
+> Command:<br>
+> ```bash
+> $ kubectl get service azure-vote-front
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_9.png "6_9")<br>
+10. Open a local web browser to the public IP address of your service.
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/6_10.png "6_10")<br>
 
 ## References
 
