@@ -20,7 +20,7 @@
 > $ docker-compose up -d
 > ```
 > Output:<br>
-> ![GITHUB](https://github.com/neolin-ms/CSSOpenTerraformAnsibleGithub/blob/main/AKSImages/1_1.png "1_1")<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/1_1.png "1_1")<br>
 > Command2:<br>
 > ```bash
 > $ docker images
