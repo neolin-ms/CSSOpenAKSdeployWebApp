@@ -161,8 +161,115 @@
 > Replace `mcr.microsoft.com/azuredocs`_/azure-vote-front:v1_ with your ACR login server name.  
 > Output:<br>
 > ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/4_1.png "4_1")<br>
+2. Deploy the application.
+> Command:<br>
+> ```bash
+> $ kubectl apply -f azure-vote-all-in-one-redis.yaml
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/4_2.png "4_2")<br>
+3. Test the application. Monitor progress and output shows a valid public IP address(EXTERNAL-IP) assigned to the service.
+> Command:<br>
+> ```bash
+> $ kubectl get service azure-vote-front --watch
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/4_3.png "4_3")<br>
+4. To see the application in action, open a web browser to the public IP address of your service.
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/4_4.png "4_4")<br>
 
 **5 - Scale application**
+1. See the number and state of pods in your cluster. A single replica was created. 
+> Command:<br>
+> ```bash
+> $ kubectl get pods
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_1.png "5_1")<br>
+2. Manually change the number of pods in `azure-vote-front` deployment, increases the number of front-end pods to 5. Af:
+> Command:<br>
+> ```bash
+> $ kubectl scale --replicas=5 deployment/azure-vote-front
+> $ kubectl get pods
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_2.png "5_2")<br>
+3. Check the version of your AKS cluster. If your AKS cluster is less than `1.10`, the Metrics Server is not automatically installed. Kubernetes supports `horizontal pod autoscaling` to adjust the number of pods in a deployment depending on CPU utilization or other select metrics.
+> Command:<br>
+> ```bash
+> $ az aks show --resource-group myResourceGroup --name myAKSCluster --query kubernetesVersion --output table
+> ``` 
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_3.png "5_3")<br>
+4. To use the autoscaler, all containers in your pods and your pods must have CPU requests and limits defined. In the azure-vote-front deployment, the front-end container already requests 0.25 CPU, with a limit of 0.5 CPU.
+> Command1:<br>
+> ```bash
+> $ vi azure-vote-all-in-one-redis.yaml
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_4.png "5_4")<br>
+> Command2:<br>
+> ```bash
+> $ kubectl describe deployment azure-vote-front
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_5.png "5_5")<br>
+5. Create a manifest file to define the autoscaler behavior and resource limits.
+> Command:<br>
+> ```bash
+> $ vi azure-vote-hpa.yaml
+> ```
+> YAML
+> ```yaml
+> apiVersion: autoscaling/v1
+> kind: HorizontalPodAutoscaler
+> metadata:
+>   name: azure-vote-back-hpa
+> spec:
+>   maxReplicas: 10 # define max replica count
+>   minReplicas: 3  # define min replica count
+>   scaleTargetRef:
+>     apiVersion: apps/v1
+>     kind: Deployment
+>     name: azure-vote-back
+>   targetCPUUtilizationPercentage: 50 # target CPU utilization
+>
+> ---
+>
+> apiVersion: autoscaling/v1
+> kind: HorizontalPodAutoscaler
+> metadata:
+>   name: azure-vote-front-hpa
+> spec:
+>   maxReplicas: 10 # define max replica count
+>   minReplicas: 3  # define min replica count
+>   scaleTargetRef:
+>     apiVersion: apps/v1
+>     kind: Deployment
+>     name: azure-vote-front
+>   targetCPUUtilizationPercentage: 50 # target CPU utilization
+> ```
+6. Apply the autoscaler defined in the `azure-vote-hpa.yaml` manifest file. Then see the status of the autoscaler.
+> Command:<br>
+> ```bash
+> $ kubectl apply -f azure-vote-hpa.yaml
+> $ kubectl get hpa
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_6.png "5_6")<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_7.png "5_7")<br>
+7. Increases the number of nodes to three in the Kubernetes cluster named `myAKSCluster`.
+> Command:<br>
+> ```bash
+> $ kubectl get nodes
+> $ az aks scale --resource-group myResourceGroup --name myAKSCluster --node-count 3
+> $ kubectl get nodes
+> ```
+> Output:<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_8.png "5_8")<br>
+> ![GITHUB](https://github.com/neolin-ms/CSSOpenAKSdeployWebApp/blob/main/AKSImages/5_9.png "5_9")<br>
+
 **6 - Update application** 
 
 ## References
